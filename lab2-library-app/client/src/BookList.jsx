@@ -150,7 +150,7 @@ function BookList() {
                   <td>{book.author}</td>
                   <td>
                     <span className="book-list__genre">
-                      {book.genreName ?? 'Sin género'}
+                      {book.genreName ?? 'Without genre'}
                     </span>
                   </td>
                 </tr>
