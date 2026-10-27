@@ -47,15 +47,49 @@ namespace lab2_library_app
                 }
             }
 
-            // Seed a default genre
-            Console.WriteLine("Before the genre seeding");
-            if (!await context.Genre.AnyAsync())
+            // Seed default genres
+            var defaultGenres = new[]
             {
-                context.Genre.Add(new Genre
-                {
-                    Name = "Science Fiction"
-                });
-                Console.WriteLine("After the genre seeding");
+                "Science Fiction",
+                "Fantasy",
+                "Mystery",
+                "Historical Fiction",
+                "Romance"
+            };
+
+            var existingGenreNames = await context.Genre
+                .Select(g => g.Name)
+                .ToListAsync();
+
+            var missingGenres = defaultGenres
+                .Where(name => !existingGenreNames.Contains(name))
+                .Select(name => new Genre { Name = name })
+                .ToList();
+
+            if (missingGenres.Count > 0)
+            {
+                context.Genre.AddRange(missingGenres);
+                await context.SaveChangesAsync();
+            }
+
+            // Seed sample books only when the catalog is empty
+            if (!await context.Book.AnyAsync())
+            {
+                var genres = await context.Genre.ToDictionaryAsync(g => g.Name);
+
+                context.Book.AddRange(
+                    new Book { Title = "Dune", Author = "Frank Herbert", GenreId = genres["Science Fiction"].Id },
+                    new Book { Title = "Neuromancer", Author = "William Gibson", GenreId = genres["Science Fiction"].Id },
+                    new Book { Title = "The Hobbit", Author = "J.R.R. Tolkien", GenreId = genres["Fantasy"].Id },
+                    new Book { Title = "Harry Potter and the Philosopher's Stone", Author = "J.K. Rowling", GenreId = genres["Fantasy"].Id },
+                    new Book { Title = "The Name of the Wind", Author = "Patrick Rothfuss", GenreId = genres["Fantasy"].Id },
+                    new Book { Title = "The Hound of the Baskervilles", Author = "Arthur Conan Doyle", GenreId = genres["Mystery"].Id },
+                    new Book { Title = "Murder on the Orient Express", Author = "Agatha Christie", GenreId = genres["Mystery"].Id },
+                    new Book { Title = "The Name of the Rose", Author = "Umberto Eco", GenreId = genres["Historical Fiction"].Id },
+                    new Book { Title = "The Pillars of the Earth", Author = "Ken Follett", GenreId = genres["Historical Fiction"].Id },
+                    new Book { Title = "Pride and Prejudice", Author = "Jane Austen", GenreId = genres["Romance"].Id }
+                );
+
                 await context.SaveChangesAsync();
             }
         }

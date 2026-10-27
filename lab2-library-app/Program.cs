@@ -16,6 +16,17 @@ builder.Services.AddDefaultIdentity<lab2_library_app.Models.ApplicationUser>(opt
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+// Allow the React (Vite) development server to call the API.
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("ReactClient", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 string dataDirectory;
 if (builder.Environment.IsDevelopment())
 {
@@ -66,6 +77,8 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseRouting();
+
+app.UseCors("ReactClient");
 
 // Authentication MUST come before Authorization
 app.UseAuthentication();
