@@ -1,0 +1,72 @@
+@model IEnumerable<lab2_library_app.Models.Book>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+@if (User.IsInRole("Admin"))
+{
+    <p>
+        <a asp-action="Create">Create New</a>
+    </p>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}
+
+<form asp-action="Index" method="get" class="mb-4">
+    <div class="row g-2">
+        <div class="col-md-5">
+            <input type="text" name="searchString" class="form-control" placeholder="Search by title or author..." value="@Context.Request.Query["searchString"]" />
+        </div>
+        <div class="col-md-4">
+            <select name="searchGenre" class="form-select" asp-items="ViewBag.Genres">
+                <option value="">All Genres</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-primary">Search</button>
+            <a asp-action="Index" class="btn btn-secondary">Clear</a>
+        </div>
+    </div>
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Title)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(model => item.Title)
+            </td>
+            <td>
+    <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+    @if (User.IsInRole("Admin"))
+    {
+        <span>|</span> <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+        <span>|</span> <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+    }
+    @if (User.Identity != null && User.Identity.IsAuthenticated && !User.IsInRole("Admin"))
+    {
+        <span>|</span> 
+        <form asp-action="Borrow" asp-route-id="@item.Id" method="post" style="display:inline;">
+            <button type="submit" class="btn btn-sm btn-success">Borrow</button>
+        </form>
+    }</td>
+        </tr>
+}
+    </tbody>
+</table>

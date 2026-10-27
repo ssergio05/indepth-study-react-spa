@@ -1,0 +1,92 @@
+﻿@model lab2_library_app.Models.ApplicationUser
+
+@{
+    ViewData["Title"] = "User Profile";
+    var loans = ViewBag.Loans as IEnumerable<lab2_library_app.Models.Loan>;
+    var loanCount = loans?.Count() ?? 0;
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow border-0 rounded-lg">
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <h2 class="mb-0">User Profile</h2>
+                </div>
+                <div class="card-body p-5">
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted fw-bold">Full Name</div>
+                        <div class="col-sm-8 fs-5">@Model.FullName</div>
+                    </div>
+                    <hr>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted fw-bold">Email Address</div>
+                        <div class="col-sm-8">@Model.Email</div>
+                    </div>
+                    <hr>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted fw-bold">Account Status</div>
+                        <div class="col-sm-8">
+                            @if (Model.EmailConfirmed)
+                            {
+                                <span class="badge bg-success px-3 py-2">Verified</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning text-dark px-3 py-2">Pending</span>
+                            }
+                        </div>
+                    </div>
+
+                    @if (!User.IsInRole("Admin"))
+                    {
+                        <div class="mt-5 pt-3 border-top">
+                            <h4 class="text-primary mb-3">Library Activity</h4>
+
+                            @if (loanCount == 0)
+                            {
+                                <div class="alert alert-info">
+                                    You currently have <strong>0</strong> books borrowed.
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-info">
+                                    You currently have <strong>@loanCount</strong> book(s) borrowed.
+                                </div>
+                                <table class="table table-sm table-striped mt-3">
+                                    <thead>
+                                        <tr>
+                                            <th>Title</th>
+                                            <th>Borrowed On</th>
+                                            <th>Due Date</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var loan in loans.Where(l => l.ReturnDate == null))
+                                        {
+                                            <tr>
+                                                <td>@(loan.Book?.Title ?? "Unknown Title")</td>
+                                                <td>@loan.LoanDate.ToString("dd/MM/yyyy")</td>
+                                                <td class="text-danger">@loan.DueDate.ToString("dd/MM/yyyy")</td>
+                                                <td>
+                                                    <form asp-controller="Books" asp-action="Return" asp-route-id="@loan.BookId" method="post">
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger">Return Book</button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            }
+                        </div>
+                    }
+                </div>
+                <div class="card-footer bg-light text-center py-3">
+                    <a asp-area="Identity" asp-page="/Account/Manage/Index" class="btn btn-outline-primary">Security Settings</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
