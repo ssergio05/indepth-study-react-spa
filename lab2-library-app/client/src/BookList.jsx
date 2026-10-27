@@ -138,9 +138,9 @@ function BookList() {
           <table className="book-list__table">
             <thead>
               <tr>
-                <th scope="col">Título</th>
-                <th scope="col">Autor</th>
-                <th scope="col">Género</th>
+                <th scope="col">Title</th>
+                <th scope="col">Author</th>
+                <th scope="col">Genre</th>
               </tr>
             </thead>
             <tbody>
